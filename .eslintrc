@@ -1,3 +1,143 @@
 {
-  "extends": ["next", "next/core-web-vitals"]
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 10,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:jsx-a11y/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier",
+    "plugin:prettier/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ]
+      }
+    }
+  ],
+  "rules": {
+    // react
+    "react/prop-types": "off",
+    "react/sort-prop-types": "error",
+    "react/self-closing-comp": "error",
+    "react/jsx-boolean-value": "error",
+    "react/jsx-handler-names": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    "react/no-find-dom-node": "error",
+    "react/jsx-pascal-case": [
+      "error",
+      {
+        "allowAllCaps": false,
+        "allowNamespace": false
+      }
+    ],
+    "react/jsx-fragments": [
+      "error",
+      "syntax"
+    ],
+    "react/jsx-curly-brace-presence": [
+      "error",
+      {
+        "props": "never",
+        "children": "never"
+      }
+    ],
+    "react/jsx-sort-props": [
+      "error",
+      {
+        "callbacksLast": true,
+        "shorthandFirst": true,
+        "noSortAlphabetically": false,
+        "reservedFirst": true
+      }
+    ],
+    // typescript
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/consistent-type-definitions": [
+      "error",
+      "type"
+    ],
+    // eslint
+    "camelcase": "error",
+    "no-unreachable": "error",
+    "no-useless-computed-key": "error",
+    "newline-before-return": "error",
+    "use-isnan": "error",
+    // TODO: enable no-unresolved and make it work
+    "import/no-unresolved": "off",
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "one-var": [
+      "error",
+      {
+        "initialized": "never"
+      }
+    ],
+    "prefer-destructuring": ["error", {
+      "array": true,
+      "object": true
+    }, {
+      "enforceForRenamedProperties": false
+    }],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "return"
+      },
+      {
+        "blankLine": "always",
+        "prev": "multiline-block-like",
+        "next": "if"
+      },
+      {
+        "blankLine": "always",
+        "prev": "multiline-block-like",
+        "next": "expression"
+      },
+      {
+        "blankLine": "always",
+        "prev": "const",
+        "next": "if"
+      }
+    ]
+  }
 }
