@@ -1,35 +1,54 @@
-import React, { FC, RefObject, useEffect, useRef, useState } from "react"
+/* eslint-disable camelcase */
+import React, { RefObject, FC, useState, useEffect, useRef } from "react"
 import {
-  extent,
-  json,
-  scaleLinear,
-  scaleTime,
-  select,
-  timeParse,
-  line,
-  axisLeft,
   axisBottom,
+  axisLeft,
+  csv,
+  DSVRowArray,
+  extent,
+  line,
+  scaleLinear,
+  select,
 } from "d3"
 
-const weatherData =
-  "https://gist.githubusercontent.com/niconiahi/af95216decf49dfa915070c8bd03f224/raw/c9cede3dfcd3a8845c598f9459ad7d8ac4aa3292/my_weather_data.json"
-
 type D = {
-  date: string
-  temperatureMax: number
+  height: number
+  yearBuilt: number
 }
 
-const TemperatureLineChart: FC = () => {
+const LighthousesLineChart: FC = () => {
   // states
   const [data, setData] = useState<D[] | undefined>(undefined)
 
-  // refs
+  // ref
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   // effects
   useEffect(() => {
     const getData = async () => {
-      const data: D[] = (await json(weatherData)) ?? []
+      const dataResponse: DSVRowArray = await csv(
+        "https://gist.githubusercontent.com/niconiahi/8d8b18a2af9174c1430e32ced46af4b7/raw/918f3a69740731520e078b94502ca6311be37807/HistoricalLighthouses.csv",
+      )
+
+      const byYearBuilt = (a: D, b: D) => a.yearBuilt - b.yearBuilt
+      const byPositiveHeight = (d: D) => d.height > 0
+
+      const data = dataResponse
+        .reduce((acc, stats) => {
+          const { Height, YearBuilt } = stats
+
+          const height = Number(Height)
+          const yearBuilt = Number(YearBuilt)
+
+          const d: D = {
+            height,
+            yearBuilt,
+          }
+
+          return [...acc, { ...d }]
+        }, [] as D[])
+        .sort(byYearBuilt)
+        .filter(byPositiveHeight)
 
       setData(data)
     }
@@ -65,13 +84,11 @@ const TemperatureLineChart: FC = () => {
       boundsHeight,
     }
 
-    const parseDate = timeParse("%Y-%m-%d")
+    // x accessor
+    const xAccessor = ({ yearBuilt }: D) => yearBuilt
 
     // y accessor
-    const yAccessor = (d: D) => d.temperatureMax
-
-    // x accessor
-    const xAccessor = (d: D) => parseDate(d.date) ?? 22
+    const yAccessor = ({ height }: D) => height
 
     // wrapper
     const wrapper = select(wrapperRef.current)
@@ -88,26 +105,16 @@ const TemperatureLineChart: FC = () => {
       )
 
     // y scale
-    const [yMin = 0, yMax = 100] = extent(data, yAccessor)
+    const [yMin = 0, yMax = 0] = extent(data, yAccessor)
     const yRange = [dimensions.boundsHeight, 0]
     const yScale = scaleLinear().domain([yMin, yMax]).range(yRange)
 
     // x scale
-    const [xMin = 0, xMax = 100] = extent(data, xAccessor)
+    const [xMin = 0, xMax = 0] = extent(data, xAccessor)
     const xRange = [0, dimensions.boundsWidth]
-    const xScale = scaleTime().domain([xMin, xMax]).range(xRange)
+    const xScale = scaleLinear().domain([xMin, xMax]).range(xRange)
 
-    // freezing zone
-    const yFreezing = yScale(32)
-    bounds
-      .append("rect")
-      .attr("x", 0)
-      .attr("width", dimensions.boundsWidth)
-      .attr("y", yFreezing)
-      .attr("height", dimensions.boundsHeight - yFreezing)
-      .attr("fill", "#e0f3f3")
-
-    // temperature line
+    // line
     const lineGenerator = line<D>()
       .x((d) => xScale(xAccessor(d)))
       .y((d) => yScale(yAccessor(d)))
@@ -133,4 +140,4 @@ const TemperatureLineChart: FC = () => {
   return <div ref={wrapperRef} id="wrapper" />
 }
 
-export default TemperatureLineChart
+export default LighthousesLineChart
